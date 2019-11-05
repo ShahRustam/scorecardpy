@@ -37,7 +37,11 @@ def ab(points0=600, odds0=1/19, pdo=50):
     
     return {'a':a, 'b':b}
 
-
+def rounding(x, all_points_are_zero):
+    rounded_x = round(x)
+    if rounded_x != 0:
+        all_points_are_zero = False
+    return rounded_x
 
 def scorecard(bins, model, xcolumns, points0=600, odds0=1/19, pdo=50, basepoints_eq0=False):
     '''
@@ -112,12 +116,13 @@ def scorecard(bins, model, xcolumns, points0=600, odds0=1/19, pdo=50, basepoints
     xs = [re.sub('_woe$', '', i) for i in xcolumns]
     # coefficients
     coef_df = pd.Series(model.coef_[0], index=np.array(xs))\
-      .loc[lambda x: x >= 0.1 ]#.reset_index(drop=True)
+      .loc[lambda x: x != 0 ]#.reset_index(drop=True)
     
     # scorecard
     len_x = len(coef_df)
     basepoints = a - b*model.intercept_[0]
     card = {}
+
     if basepoints_eq0:
         card['basepoints'] = pd.DataFrame({'variable':"basepoints", 'bin':np.nan, 'points':0}, index=np.arange(1))
         for i in coef_df.index:
@@ -127,9 +132,13 @@ def scorecard(bins, model, xcolumns, points0=600, odds0=1/19, pdo=50, basepoints
     else:
         card['basepoints'] = pd.DataFrame({'variable':"basepoints", 'bin':np.nan, 'points':round(basepoints)}, index=np.arange(1))
         for i in coef_df.index:
-            card[i] = bins.loc[bins['variable']==i,['variable', 'bin', 'woe']]\
-              .assign(points = lambda x: round(-b*x['woe']*coef_df[i]))\
+            all_points_are_zero = True
+            feauture = bins.loc[bins['variable']==i,['variable', 'bin', 'woe']]\
+              .assign(points = lambda x: rounding(-b*x['woe']*coef_df[i], all_points_are_zero))\
               [["variable", "bin", "points"]]
+            if not all_points_are_zero:
+                card[i] = feauture
+
     return card
 
 
