@@ -112,7 +112,7 @@ def scorecard(bins, model, xcolumns, points0=600, odds0=1/19, pdo=50, basepoints
     xs = [re.sub('_woe$', '', i) for i in xcolumns]
     # coefficients
     coef_df = pd.Series(model.coef_[0], index=np.array(xs))\
-      .loc[lambda x: x != 0]#.reset_index(drop=True)
+      .loc[lambda x: x >= 0.1 ]#.reset_index(drop=True)
     
     # scorecard
     len_x = len(coef_df)
@@ -122,13 +122,13 @@ def scorecard(bins, model, xcolumns, points0=600, odds0=1/19, pdo=50, basepoints
         card['basepoints'] = pd.DataFrame({'variable':"basepoints", 'bin':np.nan, 'points':0}, index=np.arange(1))
         for i in coef_df.index:
             card[i] = bins.loc[bins['variable']==i,['variable', 'bin', 'woe']]\
-              .assign(points = lambda x: round(-b*x['woe']*coef_df[i] + basepoints/len_x,1))\
+              .assign(points = lambda x: round(-b*x['woe']*coef_df[i] + basepoints/len_x))\
               [["variable", "bin", "points"]]
     else:
-        card['basepoints'] = pd.DataFrame({'variable':"basepoints", 'bin':np.nan, 'points':round(basepoints, 1)}, index=np.arange(1))
+        card['basepoints'] = pd.DataFrame({'variable':"basepoints", 'bin':np.nan, 'points':round(basepoints)}, index=np.arange(1))
         for i in coef_df.index:
             card[i] = bins.loc[bins['variable']==i,['variable', 'bin', 'woe']]\
-              .assign(points = lambda x: round(-b*x['woe']*coef_df[i],1))\
+              .assign(points = lambda x: round(-b*x['woe']*coef_df[i]))\
               [["variable", "bin", "points"]]
     return card
 
