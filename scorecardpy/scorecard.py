@@ -2,6 +2,7 @@
 
 import pandas as pd
 import numpy as np
+import logging
 import re
 from .condition_fun import *
 from .woebin import woepoints_ply1
@@ -37,11 +38,7 @@ def ab(points0=600, odds0=1/19, pdo=50):
     
     return {'a':a, 'b':b}
 
-def rounding(x, all_points_are_zero):
-    rounded_x = round(x)
-    if rounded_x != 0:
-        all_points_are_zero = False
-    return rounded_x
+
 
 def scorecard(bins, model, xcolumns, points0=600, odds0=1/19, pdo=50, basepoints_eq0=False):
     '''
@@ -123,6 +120,10 @@ def scorecard(bins, model, xcolumns, points0=600, odds0=1/19, pdo=50, basepoints
     basepoints = a - b*model.intercept_[0]
     card = {}
 
+    def rounding(x, all_points_are_zero):
+
+        return round
+
     if basepoints_eq0:
         card['basepoints'] = pd.DataFrame({'variable':"basepoints", 'bin':np.nan, 'points':0}, index=np.arange(1))
         for i in coef_df.index:
@@ -133,12 +134,14 @@ def scorecard(bins, model, xcolumns, points0=600, odds0=1/19, pdo=50, basepoints
         card['basepoints'] = pd.DataFrame({'variable':"basepoints", 'bin':np.nan, 'points':round(basepoints)}, index=np.arange(1))
         for i in coef_df.index:
             all_points_are_zero = True
-            feauture = bins.loc[bins['variable']==i,['variable', 'bin', 'woe']]\
-              .assign(points = lambda x: rounding(-b*x['woe']*coef_df[i], all_points_are_zero))\
+            feature = bins.loc[bins['variable']==i,['variable', 'bin', 'woe']]\
+              .assign(points = lambda x: round(-b*x['woe']*coef_df[i]))\
               [["variable", "bin", "points"]]
+            for index, row in feature.iterrows():
+                if row['points'] != 0:
+                    all_points_are_zero = False
             if not all_points_are_zero:
-                card[i] = feauture
-
+                card[i] = feature
     return card
 
 
