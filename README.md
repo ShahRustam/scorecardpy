@@ -20,9 +20,9 @@ Its goal is to make the development of traditional credit risk scorecard model e
 pip install scorecardpy
 ```
 
-- Install the latest version of `scorecardpy` from [github](https://github.com/shichenxie/scorecardpy) with:
+- Install the latest version of `scorecardpy` from [github](https://github.com/ShahRustam/scorecardpy) with:
 ```
-pip install git+git://github.com/shichenxie/scorecardpy.git
+pip install git+git://github.com/ShahRustam/scorecardpy.git
 ```
 
 ## Example
