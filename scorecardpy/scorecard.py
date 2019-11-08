@@ -119,11 +119,7 @@ def scorecard(bins, model, xcolumns, points0=600, odds0=1/19, pdo=50, basepoints
     len_x = len(coef_df)
     basepoints = a - b*model.intercept_[0]
     card = {}
-
-    def rounding(x, all_points_are_zero):
-
-        return round
-
+    card_with_zero = {}
     if basepoints_eq0:
         card['basepoints'] = pd.DataFrame({'variable':"basepoints", 'bin':np.nan, 'points':0}, index=np.arange(1))
         for i in coef_df.index:
@@ -142,7 +138,9 @@ def scorecard(bins, model, xcolumns, points0=600, odds0=1/19, pdo=50, basepoints
                     all_points_are_zero = False
             if not all_points_are_zero:
                 card[i] = feature
-    return card
+            else:
+                card_with_zero[i] = feature
+    return card, card_with_zero
 
 
 
